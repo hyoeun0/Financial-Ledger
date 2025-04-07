@@ -1,0 +1,30 @@
+package com.FinancialLedger.money.controller;
+
+import com.FinancialLedger.money.dto.UserDTO;
+import com.FinancialLedger.money.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+
+
+@Controller
+@RequiredArgsConstructor
+public class UserController {
+    // 생성자 주입
+    private final UserService userService;
+    // 회원가입 페이지 출력 요철
+    @GetMapping("/money/sign")
+    public String signForm(){
+        return "sign";
+    }
+    @PostMapping("/money/sign")
+    public String sign(@ModelAttribute UserDTO userDTO){
+        System.out.println("UserController.sign"); //soutm 단축키 현재 메서드 뭔지 작성
+        System.out.println("userDTO = " + userDTO); //soutp 단축키 매개변수 자동 생성
+        userService.sign(userDTO);
+
+        return "login";
+    }
+}
