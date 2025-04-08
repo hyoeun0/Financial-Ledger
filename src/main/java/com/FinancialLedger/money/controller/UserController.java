@@ -5,9 +5,7 @@ import com.FinancialLedger.money.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 
 @Controller
@@ -45,6 +43,19 @@ public class UserController {
             // login 실패
             return "login";
         }
+    }
+
+    // ajax 아이디 중복체크
+    @PostMapping("/money/id-check")
+    public @ResponseBody String idCheck(@RequestParam("userID") String userID){
+        System.out.println("userID = " + userID);
+        String checkResult = userService.idCheck(userID);
+        return  checkResult;
+//        if (checkResult != null){
+//            return "ok";
+//        } else {
+//            return "no" ;
+//        }
     }
 
 }

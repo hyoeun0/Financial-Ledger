@@ -1,17 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>sign</title>
+    <!-- jquery cdn -->
+    <!-- ajax 아이디 중복 체크 -->
+    <script
+            src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous">
+    </script>
+
 </head>
 <body>
 <!-- action 속성: form에 작성한 데이터를 어디로 보낼지 지정 -->
 <form action="/money/sign" method="post">
-    <!-- name속성: 서버로 전송할 때 변수이름의 역할 -->
-    아이디: <input type="text" name="userID"> <br>
+    <!-- name속성: 서버로 전송할 때 변수이름의 역할 --> <!-- onkeyup -> onblur 변경가능 -->
+    아이디: <input type="text" name="userID" id="userID" onkeyup="idCheck()"> <br>
+    <p id="check-result"></p>
     비밀번호: <input type="password" name="userPassword"> <br>
     이름: <input type="text" name="userName"> <br>
     <input type="submit" value="회원가입">
 </form>
 </body>
+
+<!-- ajax 아이디 중복체크 -->
+<script th:inline="javascript">
+    const idCheck = () => {
+        const id = document.getElementById("userID").value;
+        const checkResult = document.getElementById("check-result");
+        console.log("입력값: ", id);
+        $.ajax({
+            // 요청방식: post, url: "id-check", 데이터: 아이디
+            type: "post",
+            url: "/money/id-check",
+            data: {
+                userID: id
+            },
+            success: function(res){
+                console.log("요청성공:", res);
+                if (res == "ok"){
+                console.log("사용 가능한 아이디");
+                checkResult.style.color = "green";
+                checkResult.innerHTML = "사용 가능한 아이디";
+                } else {
+                    console.log("이미 사용중인 아이디");
+                    checkResult.style.color = "red";
+                checkResult.innerHTML = "이미 사용중인 아이디";
+                }
+            },
+            error: function(err){
+                console.log("에러발생", err);
+            }
+        });
+    }
+</script>
+
+
 </html>

@@ -45,4 +45,15 @@ public class UserService {
             return null;
         }
     }
+
+    public String idCheck(String userID) {
+        Optional<UserEntity> byUserID = userRepository.findByUserID(userID);
+        if (byUserID.isPresent()){
+            // 조회결과가 있다 -> 사용할 수 없다.
+            return null;
+        } else {
+            // 조회결과가 없다 -> 사용할 수 있다.
+            return "ok";
+        }
+    }
 }
