@@ -24,7 +24,7 @@ public class UserController {
         System.out.println("userDTO = " + userDTO); //soutp 단축키 매개변수 자동 생성
         userService.sign(userDTO);
 
-        return "login";
+        return "redirect:/money/login";
     }
 
     @GetMapping("/money/login")
@@ -38,13 +38,12 @@ public class UserController {
             // login 성공
             // 세션 저장하기
             session.setAttribute("loginID", loginResult.getUserID());
-            return  "main";
+            return "redirect:/money/main";
         } else {
             // login 실패
             return "login";
         }
     }
-
     // ajax 아이디 중복체크
     @PostMapping("/money/id-check")
     public @ResponseBody String idCheck(@RequestParam("userID") String userID){
@@ -56,7 +55,18 @@ public class UserController {
     @GetMapping("/money/logout")
     public String logout(HttpSession session){
         session.invalidate();
+        return "redirect:/money/index";
+    }
+
+    @GetMapping("/money/main")
+    public String mainForm() {
+        return "main";
+    }
+
+    @GetMapping("/money/index")
+    public String indexForm() {
         return "index";
     }
+
 
 }

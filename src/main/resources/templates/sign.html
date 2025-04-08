@@ -1,8 +1,70 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">-->
+<!--<head>-->
+<!--    <link href="/css/bootstrap.min.css" rel="stylesheet">-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>sign</title>-->
+<!--    &lt;!&ndash; jquery cdn &ndash;&gt;-->
+<!--    &lt;!&ndash; ajax 아이디 중복 체크 &ndash;&gt;-->
+<!--    <script-->
+<!--            src="https://code.jquery.com/jquery-3.7.1.min.js"-->
+<!--            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="-->
+<!--            crossorigin="anonymous">-->
+<!--    </script>-->
+
+<!--</head>-->
+<!--<body>-->
+<!--&lt;!&ndash; action 속성: form에 작성한 데이터를 어디로 보낼지 지정 &ndash;&gt;-->
+<!--<form action="/money/sign" method="post">-->
+<!--    &lt;!&ndash; name속성: 서버로 전송할 때 변수이름의 역할 &ndash;&gt; &lt;!&ndash; onkeyup -> onblur 변경가능 &ndash;&gt;-->
+<!--    아이디: <input type="text" name="userID" id="userID" onkeyup="idCheck()"> <br>-->
+<!--    <p id="check-result"></p>-->
+<!--    비밀번호: <input type="password" name="userPassword"> <br>-->
+<!--    이름: <input type="text" name="userName"> <br>-->
+<!--    <input type="submit" value="회원가입">-->
+<!--</form>-->
+<!--</body>-->
+
+<!--&lt;!&ndash; ajax 아이디 중복체크 &ndash;&gt;-->
+<!--<script th:inline="javascript">-->
+<!--    const idCheck = () => {-->
+<!--        const id = document.getElementById("userID").value;-->
+<!--        const checkResult = document.getElementById("check-result");-->
+<!--        console.log("입력값: ", id);-->
+<!--        $.ajax({-->
+<!--            // 요청방식: post, url: "id-check", 데이터: 아이디-->
+<!--            type: "post",-->
+<!--            url: "/money/id-check",-->
+<!--            data: {-->
+<!--                userID: id-->
+<!--            },-->
+<!--            success: function(res){-->
+<!--                console.log("요청성공:", res);-->
+<!--                if (res == "ok"){-->
+<!--                console.log("사용 가능한 아이디");-->
+<!--                checkResult.style.color = "green";-->
+<!--                checkResult.innerHTML = "사용 가능한 아이디";-->
+<!--                } else {-->
+<!--                    console.log("이미 사용중인 아이디");-->
+<!--                    checkResult.style.color = "red";-->
+<!--                checkResult.innerHTML = "이미 사용중인 아이디";-->
+<!--                }-->
+<!--            },-->
+<!--            error: function(err){-->
+<!--                console.log("에러발생", err);-->
+<!--            }-->
+<!--        });-->
+<!--    }-->
+<!--</script>-->
+<!--</html>-->
+
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
     <meta charset="UTF-8">
     <title>sign</title>
+
     <!-- jquery cdn -->
     <!-- ajax 아이디 중복 체크 -->
     <script
@@ -12,18 +74,34 @@
     </script>
 
 </head>
-<body>
+<body class="container mt-5">
+<h2 class="mb-4">회원가입</h2>
+
 <!-- action 속성: form에 작성한 데이터를 어디로 보낼지 지정 -->
 <form action="/money/sign" method="post">
+    <!-- 아이디 -->
     <!-- name속성: 서버로 전송할 때 변수이름의 역할 --> <!-- onkeyup -> onblur 변경가능 -->
-    아이디: <input type="text" name="userID" id="userID" onkeyup="idCheck()"> <br>
-    <p id="check-result"></p>
-    비밀번호: <input type="password" name="userPassword"> <br>
-    이름: <input type="text" name="userName"> <br>
-    <input type="submit" value="회원가입">
-</form>
-</body>
+    <div class="mb-3">
+        <label for="userID" class="form-label">아이디</label>
+        <input type="text" class="form-control" id="userID" name="userID" onkeyup="idCheck()" required />
+        <p id="check-result" class="form-text text-danger mt-1"></p>
+    </div>
 
+    <!-- 비밀번호 -->
+    <div class="mb-3">
+        <label for="userPassword" class="form-label">비밀번호</label>
+        <input type="password" class="form-control" id="userPassword" name="userPassword" required />
+    </div>
+
+    <!-- 이름 -->
+    <div class="mb-3">
+        <label for="userName" class="form-label">이름</label>
+        <input type="text" class="form-control" id="userName" name="userName" required />
+    </div>
+
+    <!-- 제출 버튼 -->
+    <button type="submit" class="btn btn-success">회원가입</button>
+</form>
 <!-- ajax 아이디 중복체크 -->
 <script th:inline="javascript">
     const idCheck = () => {
@@ -41,11 +119,9 @@
                 console.log("요청성공:", res);
                 if (res == "ok"){
                 console.log("사용 가능한 아이디");
-                checkResult.style.color = "green";
                 checkResult.innerHTML = "사용 가능한 아이디";
                 } else {
                     console.log("이미 사용중인 아이디");
-                    checkResult.style.color = "red";
                 checkResult.innerHTML = "이미 사용중인 아이디";
                 }
             },
@@ -55,6 +131,5 @@
         });
     }
 </script>
-
-
+</body>
 </html>

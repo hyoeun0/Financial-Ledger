@@ -1,11 +1,46 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--  <link href="/css/bootstrap.min.css" rel="stylesheet">-->
+<!--  <meta charset="UTF-8">-->
+<!--  <title>index</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--  <a href="/money/sign" class="btn btn-primary me-2" >회원가입</a>-->
+<!--  <a href="/money/login" class="btn btn-success">로그인</a>-->
+<!--</body>-->
+<!--</html>-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
   <meta charset="UTF-8">
   <title>index</title>
+  <style>
+    .centered {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .custom-image {
+      max-width: 800px;
+      width: 100%;
+      height: auto;
+    }
+  </style>
 </head>
 <body>
-  <a href="/money/sign">회원가입</a>
-  <a href="/money/login">로그인</a>
+<div class="centered">
+  <h1 class="mb-4 ">개인 가계부</h1>
+  <img src="/images/Judy.jpg" class="custom-image mb-3" alt="Judy 이미지">
+  <div>
+    <a href="/money/sign" class="btn btn-primary me-2">회원가입</a>
+    <a href="/money/login" class="btn btn-success">로그인</a>
+  </div>
+</div>
+</body>
 </body>
 </html>
