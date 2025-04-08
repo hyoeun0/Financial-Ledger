@@ -51,11 +51,12 @@ public class UserController {
         System.out.println("userID = " + userID);
         String checkResult = userService.idCheck(userID);
         return  checkResult;
-//        if (checkResult != null){
-//            return "ok";
-//        } else {
-//            return "no" ;
-//        }
+    }
+
+    @GetMapping("/money/logout")
+    public String logout(HttpSession session){
+        session.invalidate();
+        return "index";
     }
 
 }
