@@ -2,6 +2,7 @@ package com.FinancialLedger.money.controller;
 
 import com.FinancialLedger.money.dto.UserDTO;
 import com.FinancialLedger.money.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,4 +28,23 @@ public class UserController {
 
         return "login";
     }
+
+    @GetMapping("/money/login")
+    public String loginForm(){
+        return "login";
+    }
+    @PostMapping("/money/login")
+    public String login(@ModelAttribute UserDTO userDTO, HttpSession session){
+        UserDTO loginResult = userService.login(userDTO);
+        if(loginResult != null){
+            // login 성공
+            // 세션 저장하기
+            session.setAttribute("loginID", loginResult.getUserID());
+            return  "main";
+        } else {
+            // login 실패
+            return "login";
+        }
+    }
+
 }
