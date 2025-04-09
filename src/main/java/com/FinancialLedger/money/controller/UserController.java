@@ -58,15 +58,4 @@ public class UserController {
         return "redirect:/money/index";
     }
 
-    @GetMapping("/money/main")
-    public String mainForm() {
-        return "main";
-    }
-
-    @GetMapping("/money/index")
-    public String indexForm() {
-        return "index";
-    }
-
-
 }

@@ -1,13 +1,89 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js"></script>
     <meta charset="UTF-8">
     <title>main</title>
+    <style>
+        /* 모달 스타일 */
+        #myModal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            width: 300px;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                dateClick: function(info) {
+                    // 클릭한 날짜를 hidden input에 저장
+                    document.getElementById("dateInput").value = info.dateStr;
+                    openModal();
+                }
+            });
+            calendar.render();
+        });
+        function openModal() {
+            document.getElementById("myModal").style.display = "block";
+        }
+        function closeModal() {
+            document.getElementById("myModal").style.display = "none";
+        }
+    </script>
 </head>
 <body>
-    <!--세션 값 사용하기-->
-    seeion 값 확인: <p th:text="${session.loginID}"></p>
-    <a href="/money/logout">로그아웃</a>
+    <div style="display: flex; justify-content: flex-end; align-items: center; padding: 10px; background-color: #e4e4e4;">
+        <!--세션 값 사용하기-->
+        <span style="margin-right: 15px;"><span th:text="${session.loginID}"></span> 님</span>
+        <a href="/money/logout">로그아웃</a>
+    </div>
+<!--    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: #e4e4e4;">-->
+<!--        <a href="/money/main">홈</a>-->
+<!--        <div style="display: flex; align-items: center;">-->
+<!--            <span style="margin-right: 15px;"><span th:text="${session.loginID}"></span> 님</span>-->
+<!--            <a href="/money/logout">로그아웃</a>-->
+<!--        </div>-->
+    </div>
+    <br>
+    <div id='calendar'></div>
+
+<!-- 모달 창 -->
+<div id="myModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="ModalLabel">가계부 입력</h3>
+        </div>
+        <form action="/money/main" method="post">
+            <input type="hidden" name="historyDate" id="dateInput">
+            <label>내용:</label>
+            <input type="text" name="historyTitle" required><br>
+
+            <label>금액:</label>
+            <input type="number" name="historyMoney" required><br><br>
+
+            <label for="type">유형:</label>
+            <select name="historyType" id="type" required>
+                <option value="수입">수입</option>
+                <option value="지출">지출</option>
+            </select><br><br>
+
+            <button type="submit">저장</button>
+            <button type="button" onclick="closeModal()">취소</button>
+        </form>
+    </div>
+</div>
 </body>
 </html>
