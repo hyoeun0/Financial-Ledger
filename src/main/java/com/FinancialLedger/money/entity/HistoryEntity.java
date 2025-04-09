@@ -16,6 +16,10 @@ public class HistoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private UserEntity userID;
+
     @Column
     private String historyTitle;
 
@@ -28,8 +32,9 @@ public class HistoryEntity {
     @Column
     private LocalDate historyDate;
 
-    public static HistoryEntity toHistorySaveEntity(HistoryDTO historyDTO) {
+    public static HistoryEntity toHistorySaveEntity(HistoryDTO historyDTO, UserEntity userEntity) {
         HistoryEntity historyEntity = new HistoryEntity();
+        historyEntity.setUserID(userEntity); // 사용자 정보 연결
         historyEntity.setHistoryTitle(historyDTO.getHistoryTitle());
         historyEntity.setHistoryMoney(historyDTO.getHistoryMoney());
         historyEntity.setHistoryType(historyDTO.getHistoryType());

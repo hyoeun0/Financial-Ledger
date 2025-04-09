@@ -26,11 +26,9 @@ public class HistoryController {
 
     @PostMapping("/money/main")
     public String historySave(@ModelAttribute HistoryDTO historyDTO, HttpSession session){
-        historyService.historySave(historyDTO);
+        String loginID = (String) session.getAttribute("loginID");
+        historyService.historySave(historyDTO, loginID);
 
         return "redirect:/money/main";
     }
-
-
-
 }
