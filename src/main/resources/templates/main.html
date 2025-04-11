@@ -22,26 +22,187 @@
             border-radius: 8px;
             text-align: center;
         }
+        .fc-event {
+            cursor: pointer;
+        }
+        .income-event {
+            background-color: #4CAF50; /* 수입은 녹색 */
+            border-color: #4CAF50;
+        }
+        .expense-event {
+            background-color: #f44336; /* 지출은 빨간색 */
+            border-color: #f44336;
+        }
+        .fc-daygrid-day-events {
+            margin-top: 2px;
+        }
+        .summary {
+            font-weight: bold;
+            border-radius: 3px;
+            padding: 2px 5px;
+            margin-top: 2px;
+        }
+
+        .income-summary {
+            background-color: rgba(76, 175, 80, 0.7);
+            border-color: #4CAF50;
+        }
+
+        .expense-summary {
+            background-color: rgba(244, 67, 54, 0.7);
+            border-color: #f44336;
+        }
+
+        .balance-summary {
+            background-color: rgba(33, 150, 243, 0.7);
+            border-color: #2196F3;
+        }
     </style>
-    <script>
+    <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
+            // 상세 내역 데이터
+            var historyData = /*[[${historyList}]]*/ [];
+            // 일별 요약 데이터
+            var dailySummary = /*[[${summary}]]*/ [];
+
+            console.log("히스토리 데이터:", historyData);
+            console.log("일별 요약 데이터:", dailySummary);
+
+            // 달력 이벤트 형식으로 변환
+            var calendarEvents = [];
+
+            // 날짜별로 상세 내역을 저장할 객체 (나중에 클릭 시 표시용)
+            var dateDetailMap = {};
+
+            // 상세 내역을 날짜별로 정리 (달력에는 표시하지 않고 클릭 시 사용)
+            if (historyData && historyData.length > 0) {
+                historyData.forEach(function(item) {
+                    var date = item.historyDate;
+
+                    // 날짜별 상세 내역 맵 초기화
+                    if (!dateDetailMap[date]) {
+                        dateDetailMap[date] = {
+                            income: [],
+                            expense: []
+                        };
+                    }
+
+                    // 수입/지출에 따라 분류하여 저장
+                    if (item.historyType === '수입') {
+                        dateDetailMap[date].income.push(item);
+                    } else if (item.historyType === '지출') {
+                        dateDetailMap[date].expense.push(item);
+                    }
+                });
+            }
+
+            // 일별 요약 정보만 이벤트로 추가
+            if (dailySummary && dailySummary.length > 0) {
+                dailySummary.forEach(function(summary) {
+                    // 수입 요약 이벤트
+                    if (summary.totalIncome > 0) {
+                        calendarEvents.push({
+                            title: '총 수입: ' + summary.totalIncome.toLocaleString() + '원',
+                            start: summary.date,
+                            className: 'summary income-summary',
+                            display: 'block',
+                            extendedProps: {
+                                type: 'income-summary',
+                                date: summary.date
+                            }
+                        });
+                    }
+
+                    // 지출 요약 이벤트
+                    if (summary.totalExpense > 0) {
+                        calendarEvents.push({
+                            title: '총 지출: ' + summary.totalExpense.toLocaleString() + '원',
+                            start: summary.date,
+                            className: 'summary expense-summary',
+                            display: 'block',
+                            extendedProps: {
+                                type: 'expense-summary',
+                                date: summary.date
+                            }
+                        });
+                    }
+
+                    // 합계 이벤트
+                    calendarEvents.push({
+                        title: '합계: ' + summary.balance.toLocaleString() + '원',
+                        start: summary.date,
+                        className: 'summary balance-summary',
+                        display: 'block',
+                        extendedProps: {
+                            type: 'balance-summary',
+                            date: summary.date
+                        }
+                    });
+                });
+            }
+
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
+                events: calendarEvents,
                 dateClick: function(info) {
-                    // 클릭한 날짜를 hidden input에 저장
                     document.getElementById("dateInput").value = info.dateStr;
                     openModal();
+                },
+                eventClick: function(info) {
+                    var eventType = info.event.extendedProps.type;
+                    var date = info.event.extendedProps.date;
+
+                    // 합계는 클릭해도 아무 동작 없음
+                    if (eventType === 'balance-summary') {
+                        return;
+                    }
+
+                    // 해당 날짜의 상세 내역이 있는지 확인
+                    if (dateDetailMap[date]) {
+                        var details = [];
+                        var title = '';
+
+                        // 수입 요약 클릭 시 수입 내역만 표시
+                        if (eventType === 'income-summary') {
+                            title = date + ' 수입 내역';
+                            var incomeItems = dateDetailMap[date].income;
+                            if (incomeItems.length > 0) {
+                                incomeItems.forEach(function(item) {
+                                    details.push('• ' + item.historyTitle + ': ' + item.historyMoney.toLocaleString() + '원');
+                                });
+                            } else {
+                                details.push('해당 날짜의 수입 내역이 없습니다.');
+                            }
+                        }
+                        // 지출 요약 클릭 시 지출 내역만 표시
+                        else if (eventType === 'expense-summary') {
+                            title = date + ' 지출 내역';
+                            var expenseItems = dateDetailMap[date].expense;
+                            if (expenseItems.length > 0) {
+                                expenseItems.forEach(function(item) {
+                                    details.push('• ' + item.historyTitle + ': ' + item.historyMoney.toLocaleString() + '원');
+                                });
+                            } else {
+                                details.push('해당 날짜의 지출 내역이 없습니다.');
+                            }
+                        }
+
+                        // 내역이 있으면 팝업으로 표시
+                        if (details.length > 0) {
+                            alert(title + '\n\n' + details.join('\n'));
+                        }
+                    }
                 }
             });
-            calendar.render();
-        });
-        function openModal() {
-            document.getElementById("myModal").style.display = "block";
-        }
-        function closeModal() {
-            document.getElementById("myModal").style.display = "none";
-        }
+                    calendar.render();
+                });
+                function openModal() {
+                    document.getElementById("myModal").style.display = "block";
+                }
+                function closeModal() {
+                    document.getElementById("myModal").style.display = "none";
+                }
     </script>
 </head>
 <body>
