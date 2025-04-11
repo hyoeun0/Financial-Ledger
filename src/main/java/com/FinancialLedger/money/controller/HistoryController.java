@@ -65,4 +65,17 @@ public class HistoryController {
         }
         return  new ArrayList<>();
     }
+
+    @GetMapping("/money/detail")
+    public String detailForm(HttpSession session, Model model){
+        String loginID = (String) session.getAttribute("loginID");
+        if (loginID != null){
+            // 상세 내역 조회
+            List<HistoryDTO> historyList = historyService.findAllByLoginId(loginID);
+            model.addAttribute("historyList", historyList);
+        }
+        return "detail";
+    }
+
+
 }

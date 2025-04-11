@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>Detail</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 10px;
+            background-color: #e4e4e4;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .income {
+            color: #4CAF50;
+        }
+        .expense {
+            color: #f44336;
+        }
+        .summary-box {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .summary-item {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .back-button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <span style="margin-right: 15px;"><span th:text="${session.loginID}"></span> 님</span>
+    <a href="/money/logout">로그아웃</a>
+</div>
+
+<!-- 상세 내역 테이블 -->
+<h2>상세 내역</h2>
+<table>
+    <thead>
+    <tr>
+        <th>날짜</th>
+        <th>내용</th>
+        <th>유형</th>
+        <th>금액</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="history : ${historyList}">
+        <td th:text="${history.historyDate}"></td>
+        <td th:text="${history.historyTitle}"></td>
+        <td th:text="${history.historyType}" th:class="${history.historyType == '수입' ? 'income' : 'expense'}"></td>
+        <td th:text="${#numbers.formatInteger(history.historyMoney, 0, 'COMMA')} + '원'"
+            th:class="${history.historyType == '수입' ? 'income' : 'expense'}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- 메인 페이지로 돌아가기 -->
+<button class="back-button" onclick="location.href='/money/main'">메인으로 돌아가기</button>
+
+
+</body>
+</html>
