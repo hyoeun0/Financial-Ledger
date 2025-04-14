@@ -243,12 +243,22 @@ public class HistoryController {
         return "redirect:/money/main";
     }
 
+    // 수정
     @PostMapping("/money/edit/{id}")
     public String update(@PathVariable Long id,
                          @ModelAttribute HistoryDTO historyDTO,
                          @RequestParam("year") Integer year,
                          @RequestParam("month") Integer month){
         historyService.update(id, historyDTO);
+        return "redirect:/money/detail?year=" + year + "&month=" + month;
+    }
+
+    // 삭제
+    @PostMapping("/money/delete/{id}")
+    public String delete(@PathVariable Long id,
+                         @RequestParam("year") Integer year,
+                         @RequestParam("month") Integer month) {
+        historyService.delete(id);
         return "redirect:/money/detail?year=" + year + "&month=" + month;
     }
 }

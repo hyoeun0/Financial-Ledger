@@ -159,4 +159,9 @@ public class HistoryService {
             historyRepository.save(historyEntity);
         }
     }
+
+    @Transactional
+    public void delete(Long id) {
+        historyRepository.deleteById(id);
+    }
 }
