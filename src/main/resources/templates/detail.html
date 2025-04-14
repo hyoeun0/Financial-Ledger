@@ -161,6 +161,10 @@
         function closeModal() {
             document.getElementById("myModal").style.display = "none";
         }
+        // 내역 클릭 시 edit 페이지로 이동
+        function goToEditPage(id, year, month) {
+            location.href = `/money/edit/${id}?year=${year}&month=${month}`;
+        }
     </script>
 </head>
 <body>
@@ -220,8 +224,9 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="history : ${historyList}">
-        <td th:text="${history.historyDate}"></td>
+    <tr th:each="history : ${historyList}" style="cursor: pointer;"
+        th:onclick="'goToEditPage(' + ${history.id} + ', ' + ${selectedYear} + ', ' + ${selectedMonth} + ')'">
+    <td th:text="${history.historyDate}"></td>
         <td th:text="${history.historyTitle}"></td>
         <td th:text="${history.historyType}" th:class="${history.historyType == '수입' ? 'income' : 'expense'}"></td>
         <td th:text="${#numbers.formatInteger(history.historyMoney, 0, 'COMMA')} + '원'"

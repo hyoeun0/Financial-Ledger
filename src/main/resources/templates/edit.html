@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>내역 수정/삭제</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 10px;
+            background-color: #e4e4e4;
+            margin-bottom: 20px;
+        }
+        .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .update-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .delete-button {
+            background-color: #f44336;
+            color: white;
+        }
+        .cancel-button {
+            background-color: #808080;
+            color: white;
+        }
+        .back-button {
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <span style="margin-right: 15px;"><span th:text="${session.loginID}"></span> 님</span>
+    <a href="/money/logout">로그아웃</a>
+</div>
+
+<!-- 뒤로가기 버튼 -->
+<button class="back-button" onclick="history.back()">뒤로 가기</button>
+
+<div class="form-container">
+    <h2>내역 수정/삭제</h2>
+    <form id="updateForm" th:action="@{/money/edit/{id}(id=${history.id})}" method="post">
+        <div class="form-group">
+            <label for="dateInput">날짜:</label>
+            <input type="date" id="dateInput" name="historyDate" th:value="${history.historyDate}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="titleInput">내용:</label>
+            <input type="text" id="titleInput" name="historyTitle" th:value="${history.historyTitle}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="moneyInput">금액:</label>
+            <input type="number" id="moneyInput" name="historyMoney" th:value="${history.historyMoney}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="typeInput">유형:</label>
+            <select id="typeInput" name="historyType" required>
+                <option value="수입" th:selected="${history.historyType == '수입'}">수입</option>
+                <option value="지출" th:selected="${history.historyType == '지출'}">지출</option>
+            </select>
+        </div>
+
+        <!-- 현재 연월 정보를 히든 필드로 전달 -->
+        <input type="hidden" name="year" th:value="${param.year}">
+        <input type="hidden" name="month" th:value="${param.month}">
+
+        <div class="button-container">
+            <button type="submit" class="button update-button">수정</button>
+            <button type="button" class="button delete-button" onclick="deleteHistory()">삭제</button>
+            <button type="button" class="button cancel-button" onclick="history.back()">취소</button>
+        </div>
+    </form>
+
+    <!-- 삭제용 폼 -->
+    <form id="deleteForm" th:action="@{/money/delete/{id}(id=${history.id})}" method="post" style="display: none;">
+        <input type="hidden" name="year" th:value="${param.year}">
+        <input type="hidden" name="month" th:value="${param.month}">
+    </form>
+</div>
+
+<script>
+    function deleteHistory() {
+        if(confirm('정말로 이 내역을 삭제하시겠습니까?')) {
+            document.getElementById('deleteForm').submit();
+        }
+    }
+
+    // 페이지 로드시 URL에서 year와 month 파라미터 추출하여 폼에 추가
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const year = urlParams.get('year');
+        const month = urlParams.get('month');
+
+        if(year && month) {
+            document.querySelectorAll('input[name="year"]').forEach(input => input.value = year);
+            document.querySelectorAll('input[name="month"]').forEach(input => input.value = month);
+        }
+    });
+</script>
+</body>
+</html>

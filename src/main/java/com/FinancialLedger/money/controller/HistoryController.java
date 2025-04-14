@@ -226,4 +226,29 @@ public class HistoryController {
         return "redirect:/money/detail?year=" + year + "&month=" + month;
     }
 
+    @GetMapping("/money/edit/{id}")
+    public String editForm(@PathVariable Long id, Model model, HttpSession session,
+                           @RequestParam("year") Integer year,
+                           @RequestParam("month") Integer month){
+        String loginID = (String) session.getAttribute("loginID");
+        if (loginID != null) {
+            HistoryDTO historyDTO = historyService.findById(id);
+            if (historyDTO != null) {
+                model.addAttribute("history", historyDTO);
+                model.addAttribute("year", year);
+                model.addAttribute("month", month);
+                return "edit"; // 뷰 이름 반환
+            }
+        }
+        return "redirect:/money/main";
+    }
+
+    @PostMapping("/money/edit/{id}")
+    public String update(@PathVariable Long id,
+                         @ModelAttribute HistoryDTO historyDTO,
+                         @RequestParam("year") Integer year,
+                         @RequestParam("month") Integer month){
+        historyService.update(id, historyDTO);
+        return "redirect:/money/detail?year=" + year + "&month=" + month;
+    }
 }

@@ -6,6 +6,7 @@ import com.FinancialLedger.money.entity.HistoryEntity;
 import com.FinancialLedger.money.entity.UserEntity;
 import com.FinancialLedger.money.repository.HistoryRepository;
 import com.FinancialLedger.money.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
@@ -128,5 +129,34 @@ public class HistoryService {
         result.put("expense", expenseList);
 
         return result;
+    }
+
+    @Transactional
+    public HistoryDTO findById(Long id) {
+        Optional<HistoryEntity> optionalHistoryEntity = historyRepository.findById(id);
+        if(optionalHistoryEntity.isPresent()){
+            HistoryEntity historyEntity = optionalHistoryEntity.get();
+            HistoryDTO historyDTO = HistoryDTO.toHistoryDTO(historyEntity);
+            return historyDTO;
+        } else {
+            return null;
+        }
+    }
+
+    @Transactional
+    public void update(Long id, HistoryDTO historyDTO) {
+        Optional<HistoryEntity> optionalHistoryEntity = historyRepository.findById(id);
+        if(optionalHistoryEntity.isPresent()) {
+            HistoryEntity historyEntity = optionalHistoryEntity.get();
+
+            // 기존 엔티티의 필드 값 업데이트
+            historyEntity.setHistoryTitle(historyDTO.getHistoryTitle());
+            historyEntity.setHistoryMoney(historyDTO.getHistoryMoney());
+            historyEntity.setHistoryType(historyDTO.getHistoryType());
+            historyEntity.setHistoryDate(historyDTO.getHistoryDate());
+
+            // 변경된 엔티티 업데이트
+            historyRepository.save(historyEntity);
+        }
     }
 }
