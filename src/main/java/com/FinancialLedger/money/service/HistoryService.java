@@ -6,11 +6,8 @@ import com.FinancialLedger.money.entity.HistoryEntity;
 import com.FinancialLedger.money.entity.UserEntity;
 import com.FinancialLedger.money.repository.HistoryRepository;
 import com.FinancialLedger.money.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -28,11 +25,6 @@ public class HistoryService {
             historyRepository.save(historyEntity); // save() jpa 제공 메서드
         }
     }
-//    @Transactional
-//    public HistoryDTO historyFindById(Long id) {
-//        Optional<HistoryEntity> optionalHistoryEntity = historyRepository.findById(id);
-//        return optionalHistoryEntity.map(HistoryDTO::toHistoryDTO).orElse(null);
-//    }
 
     public List<HistoryDTO> findAllByLoginId(String loginID) {
         Optional<UserEntity> userEntityOptional = userRepository.findByUserID(loginID);
@@ -113,5 +105,28 @@ public class HistoryService {
 
         String dateStr = year + "-" + (month < 10 ? "0" + month : month);
         return new SummaryDTO(dateStr, totalIncome, totalExpense);
+    }
+
+    // 특정 날짜의 상세 내역 조회
+    public Map<String, List<HistoryDTO>> findByDate(String loginID, LocalDate date) {
+        List<HistoryDTO> allHistory = findAllByLoginId(loginID);
+        List<HistoryDTO> incomeList = new ArrayList<>();
+        List<HistoryDTO> expenseList = new ArrayList<>();
+
+        for (HistoryDTO history : allHistory) {
+            if (history.getHistoryDate().equals(date)) {
+                if ("수입".equals(history.getHistoryType())) {
+                    incomeList.add(history);
+                } else if ("지출".equals(history.getHistoryType())) {
+                    expenseList.add(history);
+                }
+            }
+        }
+
+        Map<String, List<HistoryDTO>> result = new HashMap<>();
+        result.put("income", incomeList);
+        result.put("expense", expenseList);
+
+        return result;
     }
 }

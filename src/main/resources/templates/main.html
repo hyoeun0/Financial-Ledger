@@ -60,104 +60,28 @@
     </style>
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
-            // 상세 내역 데이터
+            // 서버에서 가져온 데이터
             var historyData = /*[[${historyList}]]*/ [];
-            // 일별 요약 데이터
             var dailySummary = /*[[${summary}]]*/ [];
-
-            console.log("히스토리 데이터:", historyData);
-            console.log("일별 요약 데이터:", dailySummary);
-
-            // 달력 이벤트 형식으로 변환
-            var calendarEvents = [];
-
-            // 날짜별로 상세 내역을 저장할 객체 (나중에 클릭 시 표시용)
-            var dateDetailMap = {};
-
-            // 상세 내역을 날짜별로 정리 (달력에는 표시하지 않고 클릭 시 사용)
-            if (historyData && historyData.length > 0) {
-                historyData.forEach(function(item) {
-                    var date = item.historyDate;
-
-                    // 날짜별 상세 내역 맵 초기화
-                    if (!dateDetailMap[date]) {
-                        dateDetailMap[date] = {
-                            income: [],
-                            expense: []
-                        };
-                    }
-
-                    // 수입/지출에 따라 분류하여 저장
-                    if (item.historyType === '수입') {
-                        dateDetailMap[date].income.push(item);
-                    } else if (item.historyType === '지출') {
-                        dateDetailMap[date].expense.push(item);
-                    }
-                });
-            }
-
-            // 일별 요약 정보만 이벤트로 추가
-            if (dailySummary && dailySummary.length > 0) {
-                dailySummary.forEach(function(summary) {
-                    // 수입 요약 이벤트
-                    if (summary.totalIncome > 0) {
-                        calendarEvents.push({
-                            title: '총 수입: ' + summary.totalIncome.toLocaleString() + '원',
-                            start: summary.date,
-                            className: 'summary income-summary',
-                            display: 'block',
-                            extendedProps: {
-                                type: 'income-summary',
-                                date: summary.date
-                            }
-                        });
-                    }
-
-                    // 지출 요약 이벤트
-                    if (summary.totalExpense > 0) {
-                        calendarEvents.push({
-                            title: '총 지출: ' + summary.totalExpense.toLocaleString() + '원',
-                            start: summary.date,
-                            className: 'summary expense-summary',
-                            display: 'block',
-                            extendedProps: {
-                                type: 'expense-summary',
-                                date: summary.date
-                            }
-                        });
-                    }
-
-                    // 합계 이벤트
-                    calendarEvents.push({
-                        title: '합계: ' + summary.balance.toLocaleString() + '원',
-                        start: summary.date,
-                        className: 'summary balance-summary',
-                        display: 'block',
-                        extendedProps: {
-                            type: 'balance-summary',
-                            date: summary.date
-                        }
-                    });
-                });
-            }
+            var calendarEvents = /*[[${calendarEvents}]]*/ [];
+            var dateDetailMap = /*[[${dateDetailMap}]]*/ {};
 
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 events: calendarEvents,
                 headerToolbar: {
-                end: 'addEventButton today prev,next'  // 스페이스-버튼띄움 ,-붙여서 생성
+                    end: 'addEventButton today prev,next'  // 스페이스-버튼띄움 ,붙여서 생성
                 },
                 customButtons: {
-                addEventButton: { // 추가한 버튼 설정
-                    text : "세부 조회",  // 버튼 내용
-                    click : function(){
-                        // detail.html 페이지로 이동
-                        window.location.href = '/money/detail';
+                    addEventButton: { // 추가한 버튼 설정
+                        text : "세부 조회",  // 버튼 내용
+                        click : function(){
+                            // detail.html 페이지로 이동
+                            window.location.href = '/money/detail';
+                        }
                     }
-                }
-              },
-
+                },
                 dateClick: function(info) {
                     document.getElementById("dateInput").value = info.dateStr;
                     openModal();
@@ -171,41 +95,43 @@
                         return;
                     }
 
-                    // 해당 날짜의 상세 내역이 있는지 확인
-                    if (dateDetailMap[date]) {
-                        var details = [];
-                        var title = '';
+                    // 서버에서 해당 날짜 상세 내역 가져오기
+                    fetch(`/money/detail-by-date?date=${date}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            var details = [];
+                            var title = '';
 
-                        // 수입 요약 클릭 시 수입 내역만 표시
-                        if (eventType === 'income-summary') {
-                            title = date + ' 수입 내역';
-                            var incomeItems = dateDetailMap[date].income;
-                            if (incomeItems.length > 0) {
-                                incomeItems.forEach(function(item) {
-                                    details.push('• ' + item.historyTitle + ': ' + item.historyMoney.toLocaleString() + '원');
-                                });
-                            } else {
-                                details.push('해당 날짜의 수입 내역이 없습니다.');
+                            // 수입 요약 클릭 시 수입 내역만 표시
+                            if (eventType === 'income-summary') {
+                                title = date + ' 수입 내역';
+                                var incomeItems = data.income;
+                                if (incomeItems.length > 0) {
+                                    incomeItems.forEach(function(item) {
+                                        details.push('• ' + item.historyTitle + ': ' + item.historyMoney.toLocaleString() + '원');
+                                    });
+                                } else {
+                                    details.push('해당 날짜의 수입 내역이 없습니다.');
+                                }
                             }
-                        }
-                        // 지출 요약 클릭 시 지출 내역만 표시
-                        else if (eventType === 'expense-summary') {
-                            title = date + ' 지출 내역';
-                            var expenseItems = dateDetailMap[date].expense;
-                            if (expenseItems.length > 0) {
-                                expenseItems.forEach(function(item) {
-                                    details.push('• ' + item.historyTitle + ': ' + item.historyMoney.toLocaleString() + '원');
-                                });
-                            } else {
-                                details.push('해당 날짜의 지출 내역이 없습니다.');
+                            // 지출 요약 클릭 시 지출 내역만 표시
+                            else if (eventType === 'expense-summary') {
+                                title = date + ' 지출 내역';
+                                var expenseItems = data.expense;
+                                if (expenseItems.length > 0) {
+                                    expenseItems.forEach(function(item) {
+                                        details.push('• ' + item.historyTitle + ': ' + item.historyMoney.toLocaleString() + '원');
+                                    });
+                                } else {
+                                    details.push('해당 날짜의 지출 내역이 없습니다.');
+                                }
                             }
-                        }
 
-                        // 내역이 있으면 팝업으로 표시
-                        if (details.length > 0) {
-                            alert(title + '\n\n' + details.join('\n'));
-                        }
-                    }
+                            // 내역이 있으면 팝업으로 표시
+                            if (details.length > 0) {
+                                alert(title + '\n\n' + details.join('\n'));
+                            }
+                        });
                 }
             });
                     calendar.render();

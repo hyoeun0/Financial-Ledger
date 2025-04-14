@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,6 +31,10 @@ public class HistoryController {
             // 일별 요약 데이터 조회
             List<SummaryDTO> summary = historyService.getSummary(loginID);
             model.addAttribute("summary", summary);
+
+            model.addAttribute("calendarEvents", CalendarEvents(historyList, summary));
+            // 날짜별 상세 내역 맵 생성
+            model.addAttribute("dateDetailMap", DateDetailMap(historyList));
         }
 
         return "main";
@@ -97,5 +103,108 @@ public class HistoryController {
         }
         return "detail";
     }
+
+    // 달력 이벤트 데이터 준비 메서드
+    private List<Map<String, Object>> CalendarEvents(List<HistoryDTO> historyList, List<SummaryDTO> summaryList) {
+        List<Map<String, Object>> events = new ArrayList<>();
+
+        // 일별 요약 정보로 이벤트 생성
+        for (SummaryDTO summary : summaryList) {
+            // 수입 요약 이벤트
+            if (summary.getTotalIncome() > 0) {
+                Map<String, Object> incomeEvent = new HashMap<>();
+                incomeEvent.put("title", "총 수입: " + summary.getTotalIncome() + "원");
+                incomeEvent.put("start", summary.getDate());
+                incomeEvent.put("className", "summary income-summary");
+                incomeEvent.put("display", "block");
+
+                Map<String, String> extendedProps = new HashMap<>();
+                extendedProps.put("type", "income-summary");
+                extendedProps.put("date", summary.getDate());
+                incomeEvent.put("extendedProps", extendedProps);
+
+                events.add(incomeEvent);
+            }
+            // 지출 요약 이벤트
+            if (summary.getTotalExpense() > 0) {
+                Map<String, Object> expenseEvent = new HashMap<>();
+                expenseEvent.put("title", "총 지출: " + summary.getTotalExpense() + "원");
+                expenseEvent.put("start", summary.getDate());
+                expenseEvent.put("className", "summary expense-summary");
+                expenseEvent.put("display", "block");
+
+                Map<String, String> extendedProps = new HashMap<>();
+                extendedProps.put("type", "expense-summary");
+                extendedProps.put("date", summary.getDate());
+                expenseEvent.put("extendedProps", extendedProps);
+
+                events.add(expenseEvent);
+            }
+            // 합계 이벤트
+            Map<String, Object> balanceEvent = new HashMap<>();
+            balanceEvent.put("title", "합계: " + summary.getBalance() + "원");
+            balanceEvent.put("start", summary.getDate());
+            balanceEvent.put("className", "summary balance-summary");
+            balanceEvent.put("display", "block");
+
+            Map<String, String> extendedProps = new HashMap<>();
+            extendedProps.put("type", "balance-summary");
+            extendedProps.put("date", summary.getDate());
+            balanceEvent.put("extendedProps", extendedProps);
+
+            events.add(balanceEvent);
+        }
+        return events;
+    }
+
+    // 날짜별 상세 내역 맵 생성 메서드
+    private Map<String, Map<String, List<HistoryDTO>>> DateDetailMap(List<HistoryDTO> historyList) {
+        Map<String, Map<String, List<HistoryDTO>>> dateDetailMap = new HashMap<>();
+
+        for (HistoryDTO history : historyList) {
+            String date = history.getHistoryDate().toString();
+            // 날짜별 상세 내역 맵 초기화
+            if (!dateDetailMap.containsKey(date)) {
+                Map<String, List<HistoryDTO>> typeMap = new HashMap<>();
+                typeMap.put("income", new ArrayList<>());
+                typeMap.put("expense", new ArrayList<>());
+                dateDetailMap.put(date, typeMap);
+            }
+            // 수입/지출에 따라 분류하여 저장
+            if ("수입".equals(history.getHistoryType())) {
+                dateDetailMap.get(date).get("income").add(history);
+            } else if ("지출".equals(history.getHistoryType())) {
+                dateDetailMap.get(date).get("expense").add(history);
+            }
+        }
+        return dateDetailMap;
+    }
+    // 날짜별 세부 내역 조회 API
+    @GetMapping("/money/detail-by-date")
+    @ResponseBody
+    public Map<String, Object> getDetailByDate(@RequestParam("date") String date, HttpSession session) {
+        String loginID = (String) session.getAttribute("loginID");
+        List<HistoryDTO> historyList = historyService.findAllByLoginId(loginID);
+
+        List<HistoryDTO> incomeList = new ArrayList<>();
+        List<HistoryDTO> expenseList = new ArrayList<>();
+
+        for (HistoryDTO history : historyList) {
+            if (history.getHistoryDate().toString().equals(date)) {
+                if ("수입".equals(history.getHistoryType())) {
+                    incomeList.add(history);
+                } else if ("지출".equals(history.getHistoryType())) {
+                    expenseList.add(history);
+                }
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("income", incomeList);
+        result.put("expense", expenseList);
+
+        return result;
+    }
+
 
 }
