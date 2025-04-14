@@ -7,11 +7,9 @@ import com.FinancialLedger.money.service.HistoryService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,16 +64,38 @@ public class HistoryController {
         return  new ArrayList<>();
     }
 
+
     @GetMapping("/money/detail")
-    public String detailForm(HttpSession session, Model model){
+    public String detailForm(HttpSession session, Model model,
+                             @RequestParam(value = "year", required = false) Integer year,
+                             @RequestParam(value = "month", required = false) Integer month) {
         String loginID = (String) session.getAttribute("loginID");
-        if (loginID != null){
-            // 상세 내역 조회
-            List<HistoryDTO> historyList = historyService.findAllByLoginId(loginID);
+        if (loginID != null) {
+            // 현재 날짜 정보 가져오기
+            LocalDate now = LocalDate.now();
+            int currentYear = year != null ? year : now.getYear();
+            int currentMonth = month != null ? month : now.getMonthValue();
+
+            // 필터링된 내역 조회
+            List<HistoryDTO> historyList = historyService.findByYearAndMonth(loginID, currentYear, currentMonth);
             model.addAttribute("historyList", historyList);
+
+            // 월별 요약 정보 조회
+            SummaryDTO monthlySummary = historyService.getMonthlySummary(loginID, currentYear, currentMonth);
+            model.addAttribute("summary", monthlySummary);
+
+            // 연도 목록 (현재 연도 기준 5년 전부터)
+            List<Integer> years = new ArrayList<>();
+            for (int y = now.getYear() - 5; y <= now.getYear(); y++) {
+                years.add(y);
+            }
+            model.addAttribute("years", years);
+
+            // 선택된 연도와 월 전달
+            model.addAttribute("selectedYear", currentYear);
+            model.addAttribute("selectedMonth", currentMonth);
         }
         return "detail";
     }
-
 
 }

@@ -77,4 +77,41 @@ public class HistoryService {
         // Map에서 List로 변환하여 반환
         return new ArrayList<>(summaryMap.values());
     }
+
+    // 특정 연월에 해당하는 내역 조회
+    public List<HistoryDTO> findByYearAndMonth(String loginID, int year, int month) {
+        List<HistoryDTO> allHistory = findAllByLoginId(loginID);
+        List<HistoryDTO> filteredHistory = new ArrayList<>();
+
+        for (HistoryDTO history : allHistory) {
+            LocalDate historyDate = history.getHistoryDate();
+            if (historyDate.getYear() == year && historyDate.getMonthValue() == month) {
+                filteredHistory.add(history);
+            }
+        }
+
+        return filteredHistory;
+    }
+
+    // 특정 연월의 요약 데이터 생성
+    public SummaryDTO getMonthlySummary(String loginID, int year, int month) {
+        List<HistoryDTO> allHistory = findAllByLoginId(loginID);
+        int totalIncome = 0;
+        int totalExpense = 0;
+
+        for (HistoryDTO history : allHistory) {
+            LocalDate date = history.getHistoryDate();
+
+            if (date.getYear() == year && date.getMonthValue() == month) {
+                if ("수입".equals(history.getHistoryType())) {
+                    totalIncome += history.getHistoryMoney();
+                } else if ("지출".equals(history.getHistoryType())) {
+                    totalExpense += history.getHistoryMoney();
+                }
+            }
+        }
+
+        String dateStr = year + "-" + (month < 10 ? "0" + month : month);
+        return new SummaryDTO(dateStr, totalIncome, totalExpense);
+    }
 }

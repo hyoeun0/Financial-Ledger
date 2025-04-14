@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <meta charset="UTF-8">
@@ -63,6 +63,53 @@
         .back-button:hover {
             background-color: #45a049;
         }
+        .filter-container {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+            align-items: center;
+        }
+        .filter-container select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .filter-button {
+            padding: 8px 15px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .filter-button:hover {
+            background-color: #0b7dda;
+        }
+        .summary-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .summary-card {
+            flex: 1;
+            padding: 15px;
+            margin: 0 10px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .income-card {
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+        }
+        .expense-card {
+            background-color: rgba(244, 67, 54, 0.1);
+            border: 1px solid #f44336;
+        }
+        .balance-card {
+            background-color: rgba(33, 150, 243, 0.1);
+            border: 1px solid #2196F3;
+        }
     </style>
 </head>
 <body>
@@ -71,9 +118,45 @@
     <a href="/money/logout">로그아웃</a>
 </div>
 
+<!-- 필터링 컨트롤 -->
+<div class="filter-container">
+    <h3>기간 선택:</h3>
+    <form action="/money/detail" method="get">
+        <select id="year" name="year">
+            <option th:each="year : ${years}"
+                    th:value="${year}"
+                    th:text="${year + '년'}"
+                    th:selected="${year == selectedYear}"></option>
+        </select>
+        <select id="month" name="month">
+            <option th:each="month : ${#numbers.sequence(1, 12)}"
+                    th:value="${month}"
+                    th:text="${month + '월'}"
+                    th:selected="${month == selectedMonth}"></option>
+        </select>
+        <button type="submit" class="filter-button">조회</button>
+    </form>
+</div>
+
+<!-- 월별 요약 정보 -->
+<div class="summary-container">
+    <div class="summary-card income-card">
+        <h3>총 수입</h3>
+        <p th:text="${#numbers.formatInteger(summary.totalIncome, 0, 'COMMA')} + '원'">0원</p>
+    </div>
+    <div class="summary-card expense-card">
+        <h3>총 지출</h3>
+        <p th:text="${#numbers.formatInteger(summary.totalExpense, 0, 'COMMA')} + '원'">0원</p>
+    </div>
+    <div class="summary-card balance-card">
+        <h3>잔액</h3>
+        <p th:text="${#numbers.formatInteger(summary.balance, 0, 'COMMA')} + '원'">0원</p>
+    </div>
+</div>
+
 <!-- 상세 내역 테이블 -->
 <h2>상세 내역</h2>
-<table>
+<table id="historyTable">
     <thead>
     <tr>
         <th>날짜</th>
@@ -93,9 +176,13 @@
     </tbody>
 </table>
 
+<!-- 데이터가 없을 경우 메시지 표시 -->
+<div th:if="${historyList.isEmpty()}" style="text-align: center; margin-top: 20px;">
+    <p>해당 기간에 등록된 내역이 없습니다.</p>
+</div>
+
 <!-- 메인 페이지로 돌아가기 -->
 <button class="back-button" onclick="location.href='/money/main'">메인으로 돌아가기</button>
-
 
 </body>
 </html>
