@@ -32,9 +32,9 @@ public class HistoryController {
             List<SummaryDTO> summary = historyService.getSummary(loginID);
             model.addAttribute("summary", summary);
 
-            model.addAttribute("calendarEvents", CalendarEvents(historyList, summary));
+            model.addAttribute("calendarEvents", prepareCalendarEvents(historyList, summary));
             // 날짜별 상세 내역 맵 생성
-            model.addAttribute("dateDetailMap", DateDetailMap(historyList));
+            model.addAttribute("dateDetailMap", prepareDateDetailMap(historyList));
         }
 
         return "main";
@@ -55,9 +55,16 @@ public class HistoryController {
 
     @GetMapping("/money/calendar-data")
     @ResponseBody
-    public List<HistoryDTO> getCallendarData(HttpSession session){
+    public Map<String, Object> getCalendarData(HttpSession session){
         String loginID = (String) session.getAttribute("loginID");
-        return historyService.findAllByLoginId(loginID);
+        List<HistoryDTO> historyList = historyService.findAllByLoginId(loginID);
+        List<SummaryDTO> summaryList = historyService.getSummary(loginID);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("events", prepareCalendarEvents(historyList, summaryList));
+        result.put("dateDetailMap", prepareDateDetailMap(historyList));
+
+        return result;
     }
 
     @GetMapping("/money/summary")
@@ -65,7 +72,7 @@ public class HistoryController {
     public List<SummaryDTO> getSummary(HttpSession session){
         String loginID = (String) session.getAttribute("loginID");
         if(loginID != null){
-            return historyService.getSummary("loginID");
+            return historyService.getSummary(loginID);
         }
         return  new ArrayList<>();
     }
@@ -105,7 +112,7 @@ public class HistoryController {
     }
 
     // 달력 이벤트 데이터 준비 메서드
-    private List<Map<String, Object>> CalendarEvents(List<HistoryDTO> historyList, List<SummaryDTO> summaryList) {
+    private List<Map<String, Object>> prepareCalendarEvents(List<HistoryDTO> historyList, List<SummaryDTO> summaryList) {
         List<Map<String, Object>> events = new ArrayList<>();
 
         // 일별 요약 정보로 이벤트 생성
@@ -158,7 +165,7 @@ public class HistoryController {
     }
 
     // 날짜별 상세 내역 맵 생성 메서드
-    private Map<String, Map<String, List<HistoryDTO>>> DateDetailMap(List<HistoryDTO> historyList) {
+    private Map<String, Map<String, List<HistoryDTO>>> prepareDateDetailMap(List<HistoryDTO> historyList) {
         Map<String, Map<String, List<HistoryDTO>>> dateDetailMap = new HashMap<>();
 
         for (HistoryDTO history : historyList) {
