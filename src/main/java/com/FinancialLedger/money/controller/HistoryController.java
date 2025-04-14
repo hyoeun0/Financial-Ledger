@@ -213,5 +213,17 @@ public class HistoryController {
         return result;
     }
 
+    // Detail 페이지에서 내역 추가
+    @PostMapping("/money/detail/add")
+    public String detailAdd(@ModelAttribute HistoryDTO historyDTO,
+                            @RequestParam("year") Integer year,
+                            @RequestParam("month") Integer month,
+                            HttpSession session){
+        String loginID = (String) session.getAttribute("loginID");
+        historyService.historySave(historyDTO, loginID);
+
+        // 기존 필터링 조건(연도, 월)을 유지하면서 리다이렉트
+        return "redirect:/money/detail?year=" + year + "&month=" + month;
+    }
 
 }
