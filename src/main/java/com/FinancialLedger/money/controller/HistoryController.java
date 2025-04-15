@@ -9,11 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -114,13 +112,14 @@ public class HistoryController {
     // 달력 이벤트 데이터 준비 메서드
     private List<Map<String, Object>> prepareCalendarEvents(List<HistoryDTO> historyList, List<SummaryDTO> summaryList) {
         List<Map<String, Object>> events = new ArrayList<>();
+        NumberFormat numberFormat = NumberFormat.getInstance(Locale.KOREA); // 숫자 콤마 표시
 
         // 일별 요약 정보로 이벤트 생성
         for (SummaryDTO summary : summaryList) {
             // 수입 요약 이벤트
             if (summary.getTotalIncome() > 0) {
                 Map<String, Object> incomeEvent = new HashMap<>();
-                incomeEvent.put("title", "총 수입: " + summary.getTotalIncome() + "원");
+                incomeEvent.put("title", "총 수입: " + numberFormat.format(summary.getTotalIncome()) + "원"); // 숫자 콤마
                 incomeEvent.put("start", summary.getDate());
                 incomeEvent.put("className", "summary income-summary");
                 incomeEvent.put("display", "block");
@@ -135,7 +134,7 @@ public class HistoryController {
             // 지출 요약 이벤트
             if (summary.getTotalExpense() > 0) {
                 Map<String, Object> expenseEvent = new HashMap<>();
-                expenseEvent.put("title", "총 지출: " + summary.getTotalExpense() + "원");
+                expenseEvent.put("title", "총 지출: " + numberFormat.format(summary.getTotalExpense()) + "원"); // 숫자 콤마
                 expenseEvent.put("start", summary.getDate());
                 expenseEvent.put("className", "summary expense-summary");
                 expenseEvent.put("display", "block");
@@ -149,7 +148,7 @@ public class HistoryController {
             }
             // 합계 이벤트
             Map<String, Object> balanceEvent = new HashMap<>();
-            balanceEvent.put("title", "합계: " + summary.getBalance() + "원");
+            balanceEvent.put("title", "합계: " + numberFormat.format(summary.getBalance()) + "원"); // 숫자 콤마
             balanceEvent.put("start", summary.getDate());
             balanceEvent.put("className", "summary balance-summary");
             balanceEvent.put("display", "block");
