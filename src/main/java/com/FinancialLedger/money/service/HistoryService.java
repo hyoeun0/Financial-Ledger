@@ -108,28 +108,28 @@ public class HistoryService {
         return new SummaryDTO(dateStr, totalIncome, totalExpense);
     }
 
-    // 특정 날짜의 상세 내역 조회
-    public Map<String, List<HistoryDTO>> findByDate(String loginID, LocalDate date) {
-        List<HistoryDTO> allHistory = findAllByLoginId(loginID);
-        List<HistoryDTO> incomeList = new ArrayList<>();
-        List<HistoryDTO> expenseList = new ArrayList<>();
-
-        for (HistoryDTO history : allHistory) {
-            if (history.getHistoryDate().equals(date)) {
-                if ("수입".equals(history.getHistoryType())) {
-                    incomeList.add(history);
-                } else if ("지출".equals(history.getHistoryType())) {
-                    expenseList.add(history);
-                }
-            }
-        }
-
-        Map<String, List<HistoryDTO>> result = new HashMap<>();
-        result.put("income", incomeList);
-        result.put("expense", expenseList);
-
-        return result;
-    }
+//    // 특정 날짜의 상세 내역 조회
+//    public Map<String, List<HistoryDTO>> findByDate(String loginID, LocalDate date) {
+//        List<HistoryDTO> allHistory = findAllByLoginId(loginID);
+//        List<HistoryDTO> incomeList = new ArrayList<>();
+//        List<HistoryDTO> expenseList = new ArrayList<>();
+//
+//        for (HistoryDTO history : allHistory) {
+//            if (history.getHistoryDate().equals(date)) {
+//                if ("수입".equals(history.getHistoryType())) {
+//                    incomeList.add(history);
+//                } else if ("지출".equals(history.getHistoryType())) {
+//                    expenseList.add(history);
+//                }
+//            }
+//        }
+//
+//        Map<String, List<HistoryDTO>> result = new HashMap<>();
+//        result.put("income", incomeList);
+//        result.put("expense", expenseList);
+//
+//        return result;
+//    }
 
     @Transactional
     public HistoryDTO findById(Long id) {
