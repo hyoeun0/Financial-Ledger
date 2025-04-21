@@ -145,6 +145,18 @@
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 events: calendarEvents,
+                headerToolbar: {
+                    end: 'addEventButton today prev,next'  // 스페이스-버튼띄움 ,붙여서 생성
+                },
+                customButtons: {
+                    addEventButton: { // 추가한 버튼 설정
+                        text : "세부 조회",  // 버튼 내용
+                        click : function(){
+                            // detail.html 페이지로 이동
+                            window.location.href = '/money/detail';
+                        }
+                    }
+                },
                 dateClick: function(info) {
                     // 클릭한 날짜를 hidden input에 저장
                     document.getElementById("dateInput").value = info.dateStr;
