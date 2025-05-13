@@ -89,6 +89,8 @@
 <div class="form-container">
     <h2>내역 수정/삭제</h2>
     <form id="updateForm" th:action="@{/money/edit/{id}(id=${history.id})}" method="post">
+        <input type="hidden" name="_method" value="PUT" />
+
         <div class="form-group">
             <label for="dateInput">날짜:</label>
             <input type="date" id="dateInput" name="historyDate" th:value="${history.historyDate}" required>
@@ -125,6 +127,7 @@
 
     <!-- 삭제용 폼 -->
     <form id="deleteForm" th:action="@{/money/delete/{id}(id=${history.id})}" method="post" style="display: none;">
+        <input type="hidden" name="_method" value="Delete" />
         <input type="hidden" name="year" th:value="${param.year}">
         <input type="hidden" name="month" th:value="${param.month}">
     </form>

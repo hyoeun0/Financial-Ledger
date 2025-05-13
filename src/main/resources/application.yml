@@ -12,6 +12,11 @@ spring:
   thymeleaf:
     cache: false
 
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
   jpa:
     open-in-view: false
     show-sql: true

@@ -247,7 +247,7 @@ public class HistoryController {
     }
 
     // 수정
-    @PostMapping("/money/edit/{id}")
+    @PutMapping("/money/edit/{id}")
     public String update(@PathVariable Long id,
                          @ModelAttribute HistoryDTO historyDTO,
                          @RequestParam("year") Integer year,
@@ -257,7 +257,7 @@ public class HistoryController {
     }
 
     // 삭제
-    @PostMapping("/money/delete/{id}")
+    @DeleteMapping("/money/delete/{id}")
     public String delete(@PathVariable Long id,
                          @RequestParam("year") Integer year,
                          @RequestParam("month") Integer month) {
